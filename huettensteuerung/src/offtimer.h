@@ -4,8 +4,13 @@
 #include <button.h>
 #include <digital_out.h>
 #include <timer.h>
+#include <ton.h>
 
 namespace Huette {
+extern DigitalOut K1_KL1_A;
+extern DigitalOut K2_KL1_B;
+extern DigitalOut K3_AB1;
+extern DigitalOut K4_AB2;
 extern DigitalOut K8_Power;
 extern AnalogOut L1;
 extern AnalogOut L2;
@@ -14,7 +19,7 @@ extern ButtonInput DI_OFFTIMER;
 
 namespace OFFTimer {
 Timer OFFtimer((long)1000 * 60 * 5);  // 5 minutes
-Timer OFFtimerBlinker(500);
+Ton blink(500);
 
 void loop() {
   Huette::DI_OFFTIMER.handle();
@@ -32,11 +37,16 @@ void loop() {
   }
 
   if (OFFtimer.isRunning()) {
-    if (OFFtimerBlinker.hasElapsed()) {
+    Huette::K1_KL1_A.on();
+    Huette::K2_KL1_B.on();
+    Huette::K3_AB1.on();
+    Huette::K4_AB2.on();
+
+    blink.setIn(true);
+    if (blink.getQ()) {
+      blink.setIn(false);
       Huette::L1.toggle();
       Huette::L2.toggle();
-      OFFtimerBlinker.start();
-      OFFtimerBlinker.reset();
     }
   }
 }
