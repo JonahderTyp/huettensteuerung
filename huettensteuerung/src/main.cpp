@@ -24,4 +24,8 @@ ButtonInput DI_OFFTIMER(1, 1000);
 
 void setup() {}
 
-void loop() { OFFTimer::loop(); }
+void loop() {
+  Huette::DI_OFFTIMER.handle();
+
+  OFFTimer::loop();
+}
