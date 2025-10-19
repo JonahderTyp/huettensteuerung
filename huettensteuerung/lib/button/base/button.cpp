@@ -8,7 +8,8 @@ Button::Button(unsigned long holdTimeThreshold)
       buttonPressTime(0),
       buttonState(false),
       shortPressDetected(false),
-      longPressDetected(false) {}
+      longPressDetected(false),
+      longPressTriggered(false) {}
 
 // Method to update the button state with a boolean input (active high)
 void Button::handle(bool pressed) {
@@ -22,6 +23,7 @@ void Button::handle(bool pressed) {
   // Button just pressed
   if (buttonState && !previousState) {
     buttonPressTime = millis();
+    longPressTriggered = false;  // Reset the single trigger flag
   }
   // Button just released
   else if (!buttonState && previousState) {
@@ -29,6 +31,7 @@ void Button::handle(bool pressed) {
     if (pressDuration < holdTimeThreshold) {
       shortPressDetected = true;
     }
+    longPressTriggered = false;  // Reset when button is released
   }
   // Button held down
   else if (buttonState && previousState) {
@@ -46,3 +49,14 @@ bool Button::isShortPress() { return shortPressDetected; }
 // Method to check if a long press has been detected
 // Returns the same value when queried multiple times in one loop
 bool Button::isLongPress() { return longPressDetected; }
+
+// Method to check if a long press has been detected (single trigger)
+// Returns true only once when the threshold is first reached
+bool Button::isLongPressSingle() {
+  if (longPressDetected && !longPressTriggered) {
+    longPressTriggered = true;
+    return true;
+  }
+  return false;
+}
+

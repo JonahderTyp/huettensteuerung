@@ -21,6 +21,10 @@ class Button {
   // Returns true every time queried until handle() is called again
   bool isLongPress();
 
+  // Method to check if a long press has been detected (single trigger)
+  // Returns true only once when the threshold is first reached
+  bool isLongPressSingle();
+
  protected:
   unsigned long holdTimeThreshold;  // Time threshold to differentiate between
                                     // short and long press
@@ -29,6 +33,8 @@ class Button {
   bool buttonState;         // Current debounced state of the button
   bool shortPressDetected;  // Flag for short press detection
   bool longPressDetected;   // Flag for long press detection
+  bool longPressTriggered;  // Flag to track if long press has been triggered
+                            // once
 };
 
 #endif  // BUTTON_BASE_H
