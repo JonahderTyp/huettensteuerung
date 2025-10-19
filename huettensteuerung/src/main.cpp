@@ -4,6 +4,7 @@
 #include <digital_out.h>
 #include <timer.h>
 
+#include "dmx.h"
 #include "offtimer.h"
 
 namespace Huette {
@@ -19,13 +20,17 @@ DigitalOut K8_Power(8, true);
 AnalogOut L1(9, false, 0, 255);
 AnalogOut L2(10, false, 0, 255);
 
+ButtonInput DI_DMX_SW(0);
+
 ButtonInput DI_OFFTIMER(1, 1000);
 };  // namespace Huette
 
 void setup() {}
 
 void loop() {
+  Huette::DI_DMX_SW.handle();
   Huette::DI_OFFTIMER.handle();
 
   OFFTimer::loop();
+  DMX::loop();
 }
