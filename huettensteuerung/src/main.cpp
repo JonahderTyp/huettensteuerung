@@ -1,18 +1,27 @@
 #include <Arduino.h>
+#include <analog_out.h>
+#include <button.h>
+#include <digital_out.h>
+#include <timer.h>
 
-// put function declarations here:
-int myFunction(int, int);
+#include "offtimer.h"
 
-void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
-}
+namespace Huette {
+DigitalOut K1_KL1_A(1, true);
+DigitalOut K2_KL1_B(2, true);
+DigitalOut K3_AB1(3, true);
+DigitalOut K4_AB2(4, true);
+DigitalOut K5(5, true);
+DigitalOut K6(6, true);
+DigitalOut K7(7, true);
+DigitalOut K8_Power(8, true);
 
-void loop() {
-  // put your main code here, to run repeatedly:
-}
+AnalogOut L1(9, false, 0, 255);
+AnalogOut L2(10, false, 0, 255);
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
-}
+ButtonInput DI_OFFTIMER(1, 1000);
+};  // namespace Huette
+
+void setup() {}
+
+void loop() { OFFTimer::loop(); }
