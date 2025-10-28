@@ -25,6 +25,9 @@ class Button {
   // Returns true only once when the threshold is first reached
   bool isLongPressSingle();
 
+  // Method to check if the button is currently being pressed
+  bool isPressed();
+
  protected:
   unsigned long holdTimeThreshold;  // Time threshold to differentiate between
                                     // short and long press

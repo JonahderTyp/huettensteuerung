@@ -60,3 +60,5 @@ bool Button::isLongPressSingle() {
   return false;
 }
 
+// Method to check if the button is currently being pressed
+bool Button::isPressed() { return buttonState; }
