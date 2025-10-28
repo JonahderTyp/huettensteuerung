@@ -26,14 +26,14 @@ namespace DMX {
 bool DMX_Active = false;
 }  // namespace DMX
 
-namespace bar_controller {
+namespace bar_controller_buttons {
 Button VI1_BTN_S1;
 Button VI2_BTN_S2;
 Button VI3_BTN_S3;
 Button VI4_BTN_KL;
 Button VI5_BTN_BL;
 Button VI6_BTN_DMX;
-}  // namespace bar_controller
+}  // namespace bar_controller_buttons
 
 ButtonInput DI_OFFTIMER(1, 1000);
 
@@ -47,5 +47,5 @@ void loop() {
   OFFTimer::loop();
   DMX::loop();
   kronleuchter::loop();
-  bar_panel::loop();
+  bar_controller::loop();
 }

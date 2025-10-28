@@ -11,9 +11,9 @@ extern DigitalOut K1_KL1_A;
 extern DigitalOut K2_KL1_B;
 extern AnalogOut L1;
 extern AnalogOut L2;
-namespace bar_controller {
+namespace bar_controller_buttons {
 extern Button VI6_BTN_DMX;
-}  // namespace bar_controller
+}  // namespace bar_controller_buttons
 ;
 
 namespace DMX {
@@ -52,7 +52,7 @@ bool isConnected() {
 // Main loop function
 void loop() {
   // Handle button press to toggle DMX active mode
-  if (Huette::bar_controller::VI6_BTN_DMX.isLongPress()) {
+  if (Huette::bar_controller_buttons::VI6_BTN_DMX.isLongPress()) {
     Huette::DMX::DMX_Active = !Huette::DMX::DMX_Active;
 
     if (Huette::DMX::DMX_Active) {

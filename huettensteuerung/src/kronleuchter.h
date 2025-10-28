@@ -6,9 +6,9 @@
 namespace Huette {
 extern DigitalOut K1_KL1_A;
 extern DigitalOut K2_KL1_B;
-namespace bar_controller {
+namespace bar_controller_buttons {
 extern Button VI6_BTN_DMX;
-}  // namespace bar_controller
+}  // namespace bar_controller_buttons
 
 }  // namespace Huette
 
@@ -19,8 +19,8 @@ int KL_State = 0;
 namespace kronleuchter {
 
 void loop() {
-  if (Huette::bar_controller::VI4_BTN_KL.isShortPress()) KL_State++;
-  if (Huette::bar_controller::VI4_BTN_KL.isLongPress()) KL_State = 0;
+  if (Huette::bar_controller_buttons::VI4_BTN_KL.isShortPress()) KL_State++;
+  if (Huette::bar_controller_buttons::VI4_BTN_KL.isLongPress()) KL_State = 0;
 
   switch (KL_State) {
     case 0:
