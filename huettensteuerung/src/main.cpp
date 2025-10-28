@@ -35,8 +35,6 @@ Button VI5_BTN_BL;
 Button VI6_BTN_DMX;
 }  // namespace bar_controller
 
-ButtonInput DI_DMX_SW(0);
-
 ButtonInput DI_OFFTIMER(1, 1000);
 
 };  // namespace Huette
@@ -44,7 +42,6 @@ ButtonInput DI_OFFTIMER(1, 1000);
 void setup() {}
 
 void loop() {
-  Huette::DI_DMX_SW.handle();
   Huette::DI_OFFTIMER.handle();
 
   OFFTimer::loop();
