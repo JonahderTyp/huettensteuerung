@@ -12,6 +12,10 @@ extern DigitalOut K2_KL1_B;
 extern AnalogOut L1;
 extern AnalogOut L2;
 extern ButtonInput DI_DMX_SW;
+
+namespace DMX {
+extern bool DMX_Active;
+}
 }  // namespace Huette
 
 namespace DMX {
@@ -20,7 +24,6 @@ namespace DMX {
 #define DMX_MAX_CHANNELS 512  // DMX512 standard
 #define DMX_START_ADDRESS 1   // Default DMX start address (1-512)
 #define LAMP_OFFSET 16
-bool DMX_Active = false;
 
 // Initialize DMX receiver
 void init() {
@@ -47,14 +50,14 @@ bool isConnected() {
 void loop() {
   // Handle button press to toggle DMX active mode
   if (Huette::DI_DMX_SW.isShortPress()) {
-    DMX_Active = !DMX_Active;
+    Huette::DMX::DMX_Active = !Huette::DMX::DMX_Active;
 
-    if (DMX_Active) {
+    if (Huette::DMX::DMX_Active) {
       init();  // Initialize DMX when activated
     }
   }
 
-  if (DMX_Active && isConnected()) {
+  if (Huette::DMX::DMX_Active && isConnected()) {
     // The DMXSerial library handles receiving in the background
     // Just read the channel values as needed
 
