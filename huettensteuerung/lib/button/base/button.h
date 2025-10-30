@@ -25,6 +25,10 @@ class Button {
   // Returns true only once when the threshold is first reached
   bool isLongPressSingle();
 
+  // Method to check if a long press has been released
+  // Returns true only once when a long press is released
+  bool isLongPressRelease();
+
   // Method to check if the button is currently being pressed
   bool isPressed();
 
@@ -38,6 +42,7 @@ class Button {
   bool longPressDetected;   // Flag for long press detection
   bool longPressTriggered;  // Flag to track if long press has been triggered
                             // once
+  bool longPressReleaseDetected;  // Flag for long press release detection
 };
 
 #endif  // BUTTON_BASE_H
