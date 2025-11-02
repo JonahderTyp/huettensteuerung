@@ -6,7 +6,7 @@
 #define CONFIG_H
 
 // ===== I2C Configuration =====
-#define I2C_SLAVE_ADDRESS 0x80  // I2C address for this device
+#define I2C_SLAVE_ADDRESS 0x70  // I2C address for this device
 
 // ===== I2C Register Addresses =====
 #define REG_LED_UPDATE 0x10  // Register to trigger LED color update
