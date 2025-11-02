@@ -68,7 +68,8 @@ void MQTTHandler::publishSensorData(const char* topic, float value,
 void MQTTHandler::publishDiscoveryMessage(
     const char* domain, const char* component, const char* name,
     const char* configTopic, const char* stateTopic, const char* commandTopic,
-    const char* deviceClass, const char* unit, const char* valueTemplate) {
+    const char* deviceClass, const char* unit, const char* valueTemplate,
+    const char* brightnessStateTopic, const char* brightnessCommandTopic) {
   String config = "{";
   config += "\"name\":\"" + String(_deviceName) + " " + String(name) + "\",";
 
@@ -92,13 +93,25 @@ void MQTTHandler::publishDiscoveryMessage(
     config += "\"value_template\":\"" + String(valueTemplate) + "\",";
   }
 
+  // Brightness support for dimmable lights
+  if (brightnessStateTopic != nullptr) {
+    config +=
+        "\"brightness_state_topic\":\"" + String(brightnessStateTopic) + "\",";
+    config += "\"brightness_scale\":255,";
+  }
+
+  if (brightnessCommandTopic != nullptr) {
+    config += "\"brightness_command_topic\":\"" +
+              String(brightnessCommandTopic) + "\",";
+  }
+
   config += "\"unique_id\":\"" + String(_deviceName) + "_" + String(component) +
             "\",";
   config += "\"device\":{";
   config += "\"identifiers\":[\"" + String(_deviceName) + "\"],";
   config += "\"name\":\"" + String(_deviceName) + "\",";
-  config += "\"model\":\"" + String(DEVICE_MODEL) + "\",";
-  config += "\"manufacturer\":\"" + String(DEVICE_MANUFACTURER) + "\"";
+  config += "\"model\":\"" + String(ESPIOT_DEVICE_MODEL) + "\",";
+  config += "\"manufacturer\":\"" + String(ESPIOT_DEVICE_MANUFACTURER) + "\"";
   config += "}";
   config += "}";
 
@@ -139,4 +152,39 @@ void MQTTHandler::publishHomeAssistantDiscovery() {
                           "homeassistant/button/huette_iot/button3/set");
 
   Serial.println("Home Assistant discovery messages sent");
+}
+
+void MQTTHandler::publishEntityDiscovery(HAEntity* entity) {
+  if (!entity) return;
+
+  const char* domain = entity->getEntityTypeName();
+  EntityType type = entity->getType();
+
+  if (type == EntityType::BUTTON) {
+    publishDiscoveryMessage(domain, entity->getName(), entity->getName(),
+                            entity->getConfigTopic().c_str(), nullptr,
+                            entity->getCommandTopic().c_str());
+  } else if (type == EntityType::SWITCH) {
+    publishDiscoveryMessage(domain, entity->getName(), entity->getName(),
+                            entity->getConfigTopic().c_str(),
+                            entity->getStateTopic().c_str(),
+                            entity->getCommandTopic().c_str());
+  } else if (type == EntityType::LIGHT) {
+    publishDiscoveryMessage(domain, entity->getName(), entity->getName(),
+                            entity->getConfigTopic().c_str(),
+                            entity->getStateTopic().c_str(),
+                            entity->getCommandTopic().c_str());
+  } else if (type == EntityType::DIMMABLE_LIGHT) {
+    publishDiscoveryMessage(
+        domain, entity->getName(), entity->getName(),
+        entity->getConfigTopic().c_str(), entity->getStateTopic().c_str(),
+        entity->getCommandTopic().c_str(), nullptr, nullptr,
+        "{{ value_json.state }}", entity->getBrightnessStateTopic().c_str(),
+        entity->getBrightnessCommandTopic().c_str());
+  }
+
+  Serial.print("Published discovery for ");
+  Serial.print(entity->getEntityTypeName());
+  Serial.print(": ");
+  Serial.println(entity->getName());
 }

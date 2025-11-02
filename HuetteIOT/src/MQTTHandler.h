@@ -4,6 +4,8 @@
 #include <PubSubClient.h>
 #include <WiFiClientSecure.h>
 
+#include "HAEntity.h"
+
 class MQTTHandler {
  private:
   WiFiClientSecure& _wifiClient;
@@ -20,7 +22,9 @@ class MQTTHandler {
                                const char* commandTopic = nullptr,
                                const char* deviceClass = nullptr,
                                const char* unit = nullptr,
-                               const char* valueTemplate = nullptr);
+                               const char* valueTemplate = nullptr,
+                               const char* brightnessStateTopic = nullptr,
+                               const char* brightnessCommandTopic = nullptr);
 
  public:
   MQTTHandler(WiFiClientSecure& wifiClient, const char* server, uint16_t port,
@@ -35,6 +39,7 @@ class MQTTHandler {
   void subscribe(const char* topic);
   bool publish(const char* topic, const char* payload);
   void publishHomeAssistantDiscovery();
+  void publishEntityDiscovery(HAEntity* entity);
 };
 
 #endif

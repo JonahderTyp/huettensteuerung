@@ -3,20 +3,57 @@
 
 #include "Config.h"
 #include "DHTSensor.h"
+#include "EntityManager.h"
+#include "HAEntity.h"
 #include "I2CSlave.h"
 #include "MQTTHandler.h"
 #include "WiFiManager.h"
 
 // Global objects
 WiFiClientSecure espClient;
-WiFiManager wifiManager(ssid, password);
-MQTTHandler mqttHandler(espClient, mqtt_server, MQTT_PORT, mqtt_user,
-                        mqtt_password, DEVICE_NAME);
+WiFiManager wifiManager(ESPIOT_SSID, ESPIOT_PASSWORD);
+MQTTHandler mqttHandler(espClient, ESPIOT_MQTT_SERVER, MQTT_PORT,
+                        ESPIOT_MQTT_USER, ESPIOT_MQTT_PASSWORD,
+                        ESPIOT_DEVICE_NAME);
 DHTSensor dhtSensor(DHTPIN, DHTTYPE);
 I2CSlave i2cSlave(I2C_SLAVE_ADDRESS, I2C_SDA_PIN, I2C_SCL_PIN, NUM_REGISTERS);
+EntityManager entityManager(i2cSlave);
 
 // Timing
 unsigned long lastSensorUpdate = 0;
+
+// ===================================
+// ENTITY SETUP - Configure your entities here
+// ===================================
+void setupEntities() {
+  Serial.println("\n--- Configuring Entities ---");
+
+  uint8_t registerIndex = 0;
+
+  for (int i = 0; i < NUM_BUTTONS; i++) {
+    String name = "button" + String(i + 1);
+    entityManager.addButton(name.c_str(), registerIndex++);
+  }
+
+  for (int i = 0; i < NUM_SWITCHES; i++) {
+    String name = "switch" + String(i + 1);
+    entityManager.addSwitch(name.c_str(), registerIndex++);
+  }
+  for (int i = 0; i < NUM_LIGHTS; i++) {
+    String name = "light" + String(i + 1);
+    entityManager.addLight(name.c_str(), registerIndex++);
+  }
+  for (int i = 0; i < NUM_DIMMABLE_LIGHTS; i++) {
+    String name = "dimlight" + String(i + 1);
+    entityManager.addDimmableLight(name.c_str(), registerIndex++);
+  }
+
+  Serial.print("Total entities configured: ");
+  Serial.println(entityManager.getEntityCount());
+  Serial.print("Total I2C registers used: ");
+  Serial.println(NUM_REGISTERS);
+  Serial.println("----------------------------\n");
+}
 
 // MQTT callback function
 void onMqttMessage(char* topic, byte* payload, unsigned int length) {
@@ -30,25 +67,58 @@ void onMqttMessage(char* topic, byte* payload, unsigned int length) {
   }
   Serial.println(message);
 
-  // Handle button commands and set I2C registers
-  if (strcmp(topic, "homeassistant/button/huette_iot/button1/set") == 0) {
-    i2cSlave.setRegister(0, 1);
-    Serial.println("Button 1 pressed - Register 0 set to 1");
-  } else if (strcmp(topic, "homeassistant/button/huette_iot/button2/set") ==
-             0) {
-    i2cSlave.setRegister(1, 1);
-    Serial.println("Button 2 pressed - Register 1 set to 1");
-  } else if (strcmp(topic, "homeassistant/button/huette_iot/button3/set") ==
-             0) {
-    i2cSlave.setRegister(2, 1);
-    Serial.println("Button 3 pressed - Register 2 set to 1");
+  // Find entity by topic and handle command
+  HAEntity* entity = entityManager.findEntityByTopic(topic);
+  if (entity) {
+    entityManager.handleCommand(entity, message);
+
+    // Publish state update for non-button entities
+    if (entity->getType() != EntityType::BUTTON) {
+      String payload = entity->getStatePayload();
+      if (payload.length() > 0) {
+        mqttHandler.publish(entity->getStateTopic().c_str(), payload.c_str());
+      }
+    }
+  } else {
+    Serial.println("Unknown topic, no entity found");
+  }
+}
+
+void subscribeToAllEntities() {
+  for (size_t i = 0; i < entityManager.getEntityCount(); i++) {
+    HAEntity* entity = entityManager.getEntity(i);
+    if (entity) {
+      mqttHandler.subscribe(entity->getCommandTopic().c_str());
+
+      // Subscribe to brightness topic for dimmable lights
+      if (entity->getType() == EntityType::DIMMABLE_LIGHT) {
+        mqttHandler.subscribe(entity->getBrightnessCommandTopic().c_str());
+      }
+    }
+  }
+}
+
+void publishAllEntityDiscovery() {
+  // Publish sensor discovery
+  mqttHandler.publishHomeAssistantDiscovery();
+
+  // Publish entity discovery
+  for (size_t i = 0; i < entityManager.getEntityCount(); i++) {
+    HAEntity* entity = entityManager.getEntity(i);
+    if (entity) {
+      mqttHandler.publishEntityDiscovery(entity);
+    }
   }
 }
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("\n\nHütte IoT - ESP8266 Smart Home Controller");
-  Serial.println("==========================================");
+  Serial.println("\n\n========================================");
+  Serial.println("Hütte IoT - ESP8266 Smart Home Controller");
+  Serial.println("========================================");
+
+  // Setup entities first
+  setupEntities();
 
   // Initialize I2C slave
   i2cSlave.begin();
@@ -73,14 +143,14 @@ void setup() {
   }
 
   // Publish Home Assistant discovery messages
-  mqttHandler.publishHomeAssistantDiscovery();
+  publishAllEntityDiscovery();
 
-  // Subscribe to button topics
-  mqttHandler.subscribe("homeassistant/button/huette_iot/button1/set");
-  mqttHandler.subscribe("homeassistant/button/huette_iot/button2/set");
-  mqttHandler.subscribe("homeassistant/button/huette_iot/button3/set");
+  // Subscribe to all entity topics
+  subscribeToAllEntities();
 
+  Serial.println("\n========================================");
   Serial.println("Setup complete!");
+  Serial.println("========================================\n");
 }
 
 void loop() {
@@ -88,10 +158,8 @@ void loop() {
   if (!mqttHandler.isConnected()) {
     Serial.println("MQTT disconnected, reconnecting...");
     if (mqttHandler.connect()) {
-      mqttHandler.publishHomeAssistantDiscovery();
-      mqttHandler.subscribe("homeassistant/button/huette_iot/button1/set");
-      mqttHandler.subscribe("homeassistant/button/huette_iot/button2/set");
-      mqttHandler.subscribe("homeassistant/button/huette_iot/button3/set");
+      publishAllEntityDiscovery();
+      subscribeToAllEntities();
     }
   }
   mqttHandler.loop();
