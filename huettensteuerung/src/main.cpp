@@ -4,23 +4,26 @@
 #include <digital_out.h>
 #include <timer.h>
 
+#include "balken.h"
 #include "bar_panel.h"
 #include "dmx.h"
 #include "kronleuchter.h"
 #include "offtimer.h"
 
 namespace Huette {
-DigitalOut K1_KL1_A(1, true);
-DigitalOut K2_KL1_B(2, true);
-DigitalOut K3_AB1(3, true);
-DigitalOut K4_AB2(4, true);
-DigitalOut K5(5, true);
-DigitalOut K6(6, true);
-DigitalOut K7(7, true);
-DigitalOut K8_Power(8, true);
+DigitalOut K1_KL1_A(53, true);
+DigitalOut K2_KL1_B(52, true);
+DigitalOut K3_AB1(51, true);
+DigitalOut K4_AB2(50, true);
+DigitalOut K5(49, true);
+DigitalOut K6(48, true);
+DigitalOut K7(47, true);
+DigitalOut K8_Power(46, true);
 
-AnalogOut L1(9, false, 0, 255);
-AnalogOut L2(10, false, 0, 255);
+AnalogOut L1(4, false, 255, 255);
+AnalogOut L2(5, false, 255, 255);
+AnalogOut L3(2, false, 0, 255);
+AnalogOut L4(3, false, 0, 255);
 
 namespace DMX {
 bool DMX_Active = false;
@@ -39,7 +42,13 @@ ButtonInput DI_OFFTIMER(1, 1000);
 
 };  // namespace Huette
 
-void setup() {}
+void setup() {
+  delay(1000);
+  Serial.begin(115200);
+  Serial.println("Huettensteuerung starting...");
+  delay(100);
+  Wire.begin();
+}
 
 void loop() {
   Huette::DI_OFFTIMER.handle();
@@ -48,4 +57,5 @@ void loop() {
   DMX::loop();
   kronleuchter::loop();
   bar_controller::loop();
+  balken::loop();
 }
