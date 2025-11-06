@@ -18,7 +18,7 @@ bool direction = true;
 Ton dimmer_timer(10);
 }  // namespace
 
-namespace kronleuchter {
+namespace balken {
 
 void loop() {
   if (Huette::bar_controller_buttons::VI5_BTN_BL.isShortPress()) {
@@ -41,9 +41,12 @@ void loop() {
       if (direction) {
         Huette::L1.setPercent(val1 + 1.0f);
         Huette::L2.setPercent(val2 + 1.0f);
+        if (val1 >= 100.0f && val2 >= 100.0f) direction = !direction;
+
       } else {
         Huette::L1.setPercent(val1 - 1.0f);
         Huette::L2.setPercent(val2 - 1.0f);
+        if (val1 <= 0.0f && val2 <= 0.0f) direction = !direction;
       }
     }
   }
@@ -51,4 +54,4 @@ void loop() {
     direction = !direction;
   }
 }
-}  // namespace kronleuchter
+}  // namespace balken
