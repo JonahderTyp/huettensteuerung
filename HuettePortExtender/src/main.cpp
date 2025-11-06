@@ -35,6 +35,12 @@ void monitorInputs();
 void receiveEvent(int bytes);
 void requestEvent();
 
+void error() {
+  strip.setPixelColor(0, strip.Color(255, 0, 0));
+  for (int i = 1; i < NUM_LEDS; i++) strip.setPixelColor(i, 0);
+  strip.show();
+}
+
 /**
  * Continuously monitor all input pins and latch HIGH states
  * Once an input goes HIGH, it remains flagged until cleared by I2C read
@@ -62,22 +68,15 @@ void receiveEvent(int bytes) {
 
   if (firstByte == REG_LED_UPDATE) {
     // LED update: read RGB data for all LEDs
-    ledBufferIndex = 0;
+    uint8_t led_num = Wire.read();
+    uint8_t alpha = Wire.read();  // Unused alpha byte
+    uint8_t red = Wire.read();
+    uint8_t green = Wire.read();
+    uint8_t blue = Wire.read();
 
-    while (Wire.available() && ledBufferIndex < NUM_LEDS * 3) {
-      ledBuffer[ledBufferIndex++] = Wire.read();
-    }
+    strip.setPixelColor(led_num, red, green, blue);
+    strip.show();
 
-    // Update strip if complete data received
-    if (ledBufferIndex == NUM_LEDS * 3) {
-      for (int i = 0; i < NUM_LEDS; i++) {
-        strip.setPixelColor(i,
-                            ledBuffer[i * 3],       // R
-                            ledBuffer[i * 3 + 1],   // G
-                            ledBuffer[i * 3 + 2]);  // B
-      }
-      strip.show();
-    }
   } else {
     // Input selection: store input ID for next read request
     currentRegister = firstByte;
@@ -95,13 +94,30 @@ void receiveEvent(int bytes) {
 void requestEvent() {
   uint8_t response = 0;
 
+  // Serial.print("[I2C TX] Request for register: 0x");
+  // Serial.print(currentRegister, HEX);
+
   if (currentRegister < NUM_INPUTS) {
     if (inputPressed[currentRegister]) {
       response = 1;                           // Press detected
       inputPressed[currentRegister] = false;  // Clear flag after reading
+      // Serial.print(" - Input ");
+      // Serial.print(currentRegister);
+      // Serial.println(" PRESSED (cleared)");
+    } else {
+      // Serial.print(" - Input ");
+      // Serial.print(currentRegister);
+      // Serial.println(" not pressed");
     }
+  } else {
+    Serial.print("Invalid register-");
+    Serial.print(NUM_INPUTS);
+    Serial.print(" ");
+    Serial.println(currentRegister);
   }
 
+  // Serial.print("[I2C TX] Sending response: 0x");
+  // Serial.println(response, HEX);
   Wire.write(response);
   currentRegister = 0xFF;  // Reset register selection
 }
@@ -110,6 +126,7 @@ void requestEvent() {
  * Setup function - runs once at startup
  */
 void setup() {
+  Serial.begin(115200);
   // Configure I2C slave with callbacks
   Wire.begin(I2C_SLAVE_ADDRESS);
   Wire.onReceive(receiveEvent);
@@ -122,8 +139,15 @@ void setup() {
 
   // Initialize WS2812B LED strip (all LEDs off)
   strip.begin();
+  strip.setBrightness(255);
   strip.clear();
+  for (int i = 0; i < NUM_LEDS; i++) {
+    // Create rainbow effect: distribute hue evenly across all LEDs
+    uint16_t hue = (i * 65536L / NUM_LEDS);
+    strip.setPixelColor(i, strip.gamma32(strip.ColorHSV(hue)));
+  }
   strip.show();
+  delay(500);
 }
 
 /**

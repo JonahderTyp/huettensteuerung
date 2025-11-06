@@ -9,7 +9,8 @@
 #define I2C_SLAVE_ADDRESS 0x70  // I2C address for this device
 
 // ===== I2C Register Addresses =====
-#define REG_LED_UPDATE 0x10  // Register to trigger LED color update
+#define REG_LED_UPDATE 0x10    // Register to trigger LED color update
+#define RGB_LED_COLOR_BYTES 4  // Number of bytes per RGB LED (unused, R, G, B)
 
 // ===== Input Pin Configuration =====
 // Array of input pins to monitor (can be customized to any digital pins)
