@@ -52,13 +52,16 @@ bool isConnected() {
 // Main loop function
 void loop() {
   // Handle button press to toggle DMX active mode
-  if (Huette::bar_controller_buttons::VI6_BTN_DMX.isShortPress()) {
-    Huette::DMX::DMX_Active = false;
-  }
-
-  if (Huette::bar_controller_buttons::VI6_BTN_DMX.isLongPressSingle()) {
-    Huette::DMX::DMX_Active = true;
-    init();
+  if (Huette::DMX::DMX_Active) {
+    if (Huette::bar_controller_buttons::VI6_BTN_DMX.isShortPress() ||
+        Huette::bar_controller_buttons::VI6_BTN_DMX.isLongPressSingle()) {
+      Huette::DMX::DMX_Active = false;
+    }
+  } else {
+    if (Huette::bar_controller_buttons::VI6_BTN_DMX.isLongPressSingle()) {
+      Huette::DMX::DMX_Active = true;
+      init();  // Initialize DMX when activated
+    }
   }
 
   if (Huette::DMX::DMX_Active && isConnected()) {
