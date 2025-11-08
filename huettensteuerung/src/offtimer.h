@@ -22,8 +22,6 @@ Timer OFFtimer((long)1000 * 60 * 5);  // 5 minutes
 Ton blink(500);
 
 void loop() {
-  Huette::DI_OFFTIMER.handle();
-
   if (Huette::DI_OFFTIMER.isShortPress() || Huette::DI_OFFTIMER.isLongPress()) {
     if (OFFtimer.isRunning()) {
       OFFtimer.reset();

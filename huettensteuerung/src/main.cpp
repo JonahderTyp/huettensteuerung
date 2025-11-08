@@ -2,8 +2,10 @@
 #include <analog_out.h>
 #include <button.h>
 #include <digital_out.h>
+#include <switch.h>
 #include <timer.h>
 
+#include "aussenbel.h"
 #include "balken.h"
 #include "bar_panel.h"
 #include "dmx.h"
@@ -39,6 +41,14 @@ Button VI6_BTN_DMX;
 }  // namespace bar_controller_buttons
 
 ButtonInput DI_OFFTIMER(1, 1000);
+SwitchInput SW_AB_1(22);
+SwitchInput SW_AB_2(23);
+
+void handlers() {
+  DI_OFFTIMER.handle();
+  SW_AB_1.handle();
+  SW_AB_2.handle();
+}
 
 };  // namespace Huette
 
@@ -51,11 +61,11 @@ void setup() {
 }
 
 void loop() {
-  Huette::DI_OFFTIMER.handle();
-
+  Huette::handlers();
   OFFTimer::loop();
   DMX::loop();
   kronleuchter::loop();
   bar_controller::loop();
   balken::loop();
+  aussenbel::loop();
 }
