@@ -9,7 +9,7 @@ namespace Huette {
 extern AnalogOut L1;
 extern AnalogOut L2;
 namespace bar_controller_buttons {
-extern Button VI5_BTN_BL;
+extern Button VI4_BTN_BLK;
 }
 }  // namespace Huette
 
@@ -21,7 +21,7 @@ Ton dimmer_timer(10);
 namespace balken {
 
 void loop() {
-  if (Huette::bar_controller_buttons::VI5_BTN_BL.isShortPress()) {
+  if (Huette::bar_controller_buttons::VI4_BTN_BLK.isShortPress()) {
     if (direction) {
       Huette::L1.off();
       Huette::L2.off();
@@ -32,7 +32,7 @@ void loop() {
     direction = !direction;
   }
 
-  if (Huette::bar_controller_buttons::VI5_BTN_BL.isLongPress()) {
+  if (Huette::bar_controller_buttons::VI4_BTN_BLK.isLongPress()) {
     dimmer_timer.setIn(true);
     if (dimmer_timer.getQ()) {
       dimmer_timer.setIn(false);
@@ -50,7 +50,7 @@ void loop() {
       }
     }
   }
-  if (Huette::bar_controller_buttons::VI5_BTN_BL.isLongPressRelease()) {
+  if (Huette::bar_controller_buttons::VI4_BTN_BLK.isLongPressRelease()) {
     direction = !direction;
   }
 }

@@ -12,6 +12,7 @@ extern DigitalOut K1_KL1_A;
 extern DigitalOut K2_KL1_B;
 extern AnalogOut L1;
 extern AnalogOut L2;
+extern AnalogOut L3;
 extern ButtonInput DI_DMX_SW;
 namespace DMX {
 extern bool DMX_Active;
@@ -19,9 +20,9 @@ extern bool DMX_Active;
 namespace bar_controller_buttons {
 extern Button VI1_BTN_S1;
 extern Button VI2_BTN_S2;
-extern Button VI3_BTN_S3;
-extern Button VI4_BTN_KL;
-extern Button VI5_BTN_BL;
+extern Button VI3_BTN_KL;
+extern Button VI4_BTN_BLK;
+extern Button VI5_BTN_BAR;
 extern Button VI6_BTN_DMX;
 }  // namespace bar_controller_buttons
 
@@ -65,26 +66,26 @@ void setLeds() {
     color = 0x00FFFFFF;
   setPixelColor(3, color);
 
-  // Scene 3
-  color = 0;
+  // Kronleuchter
+  color = getLEDcolor(Huette::K1_KL1_A.getState());
   setPixelColor(4, color);
-  if (Huette::bar_controller_buttons::VI3_BTN_S3.isPressed())
+  color = getLEDcolor(Huette::K2_KL1_B.getState());
+  if (Huette::bar_controller_buttons::VI3_BTN_KL.isPressed())
     color = 0x00FFFFFF;
   setPixelColor(5, color);
 
-  // Kronleuchter
-  color = getLEDcolor(Huette::K1_KL1_A.getState());
+  // Balken
+  color = getLEDcolor(Huette::L1.getValue());
   setPixelColor(6, color);
-  color = getLEDcolor(Huette::K2_KL1_B.getState());
-  if (Huette::bar_controller_buttons::VI4_BTN_KL.isPressed())
+  color = getLEDcolor(Huette::L2.getValue());
+  if (Huette::bar_controller_buttons::VI4_BTN_BLK.isPressed())
     color = 0x00FFFFFF;
   setPixelColor(7, color);
 
-  // Balken
-  color = getLEDcolor(Huette::L1.getValue());
+  // Bar
+  color = getLEDcolor(Huette::L3.getValue());
   setPixelColor(8, color);
-  color = getLEDcolor(Huette::L2.getValue());
-  if (Huette::bar_controller_buttons::VI5_BTN_BL.isPressed())
+  if (Huette::bar_controller_buttons::VI5_BTN_BAR.isPressed())
     color = 0x00FFFFFF;
   setPixelColor(9, color);
 
@@ -115,9 +116,9 @@ byte getByte(byte reg) {
 void loop() {
   Huette::bar_controller_buttons::VI1_BTN_S1.handle(getByte(0));
   Huette::bar_controller_buttons::VI2_BTN_S2.handle(getByte(1));
-  Huette::bar_controller_buttons::VI3_BTN_S3.handle(getByte(2));
-  Huette::bar_controller_buttons::VI4_BTN_KL.handle(getByte(3));
-  Huette::bar_controller_buttons::VI5_BTN_BL.handle(getByte(4));
+  Huette::bar_controller_buttons::VI3_BTN_KL.handle(getByte(2));
+  Huette::bar_controller_buttons::VI4_BTN_BLK.handle(getByte(3));
+  Huette::bar_controller_buttons::VI5_BTN_BAR.handle(getByte(4));
   Huette::bar_controller_buttons::VI6_BTN_DMX.handle(getByte(5));
   setLeds();
 }

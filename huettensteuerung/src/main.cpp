@@ -34,9 +34,9 @@ bool DMX_Active = false;
 namespace bar_controller_buttons {
 Button VI1_BTN_S1;
 Button VI2_BTN_S2;
-Button VI3_BTN_S3;
-Button VI4_BTN_KL;
-Button VI5_BTN_BL;
+Button VI3_BTN_KL;
+Button VI4_BTN_BLK;
+Button VI5_BTN_BAR;
 Button VI6_BTN_DMX;
 }  // namespace bar_controller_buttons
 
