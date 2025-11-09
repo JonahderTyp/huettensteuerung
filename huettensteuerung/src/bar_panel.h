@@ -31,7 +31,7 @@ extern Button VI6_BTN_DMX;
 namespace bar_controller {
 
 uint32_t getLEDcolor(int state, bool brightness_adjust = true,
-                     uint8_t brightnessLow = 63, uint8_t brightnessHigh = 255) {
+                     uint8_t brightnessLow = 31, uint8_t brightnessHigh = 255) {
   uint32_t color;
   if (state == 0)
     color = 0x00FF0000;
@@ -70,15 +70,13 @@ void setLeds() {
   uint32_t color;
   // Scene 1
   color = 0;
-  if (Huette::bar_controller_buttons::VI1_BTN_S1.isPressed())
-    color = 0x00FFFFFF;
+  if (Huette::bar_controller_buttons::VI1_BTN_S1.isPressed()) color = 0;
   setPixelColor(0, color);
   setPixelColor(1, color);
 
   // Scene 2
   color = 0;
-  if (Huette::bar_controller_buttons::VI2_BTN_S2.isPressed())
-    color = 0x00FFFFFF;
+  if (Huette::bar_controller_buttons::VI2_BTN_S2.isPressed()) color = 0;
   setPixelColor(2, color);
   setPixelColor(3, color);
 
