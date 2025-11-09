@@ -17,7 +17,6 @@ SwitchInput::SwitchInput(int pin, bool activeLow, bool enablePullup)
   }
 
   // Read initial state to prevent false triggers on power-up
-  delay(10);  // Small delay to let the pin stabilize
   bool initialState = digitalRead(switchPin);
   lastRawState = initialState;
 
