@@ -9,7 +9,7 @@
 #include "balken.h"
 #include "bar.h"
 #include "bar_panel.h"
-#include "dmx.h"
+// #include "dmx.h"
 #include "kronleuchter.h"
 #include "offtimer.h"
 
@@ -44,13 +44,13 @@ Button VI6_BTN_DMX;
 }  // namespace bar_controller_buttons
 
 ButtonInput DI_OFFTIMER(1, 1000);
-SwitchInput SW_AB_1(22);
-SwitchInput SW_AB_2(23);
+// SwitchInput SW_AB_1(22);
+// SwitchInput SW_AB_2(23);
 
 void handlers() {
   DI_OFFTIMER.handle();
-  SW_AB_1.handle();
-  SW_AB_2.handle();
+  // SW_AB_1.handle();
+  // SW_AB_2.handle();
 }
 
 };  // namespace Huette
@@ -65,12 +65,13 @@ void setup() {
   Serial.println("Huettensteuerung starting...");
   delay(100);
   Wire.begin();
+  Wire.setClock(50000);  // 50 kHz I2C clock
 }
 
 void loop() {
   Huette::handlers();
   OFFTimer::loop();
-  DMX::loop();
+  // DMX::loop();
   kronleuchter::loop();
   bar_controller::loop();
   balken::loop();
