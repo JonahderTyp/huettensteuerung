@@ -141,11 +141,7 @@ void setup() {
   strip.begin();
   strip.setBrightness(255);
   strip.clear();
-  for (int i = 0; i < NUM_LEDS; i++) {
-    // Create rainbow effect: distribute hue evenly across all LEDs
-    uint16_t hue = (i * 65536L / NUM_LEDS);
-    strip.setPixelColor(i, strip.gamma32(strip.ColorHSV(hue)));
-  }
+  strip.setPixelColor(0, strip.Color(0, 0, 255));  // Blue to indicate ready
   strip.show();
   delay(500);
 }
