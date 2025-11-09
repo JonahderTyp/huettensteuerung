@@ -30,11 +30,27 @@ extern Button VI6_BTN_DMX;
 
 namespace bar_controller {
 
-uint32_t getLEDcolor(int state) {
-  if (state == 0) {
-    return 0x00FF0000;
-  }
-  return 0x0000FF00;  // Default to green
+uint32_t getLEDcolor(int state, bool brightness_adjust = true,
+                     uint8_t brightnessLow = 63, uint8_t brightnessHigh = 255) {
+  uint32_t color;
+  if (state == 0)
+    color = 0x00FF0000;
+  else
+    color = 0x0000FF00;  // Default to green
+
+  // reduce brightness
+  uint8_t brightness = brightness_adjust ? brightnessHigh : brightnessLow;
+  uint32_t a = (color >> 24) & 0xFF;
+  uint32_t r = (color >> 16) & 0xFF;
+  uint32_t g = (color >> 8) & 0xFF;
+  uint32_t b = color & 0xFF;
+  a = (a * brightness) / 255;
+  r = (r * brightness) / 255;
+  g = (g * brightness) / 255;
+  b = (b * brightness) / 255;
+  color = (a << 24) | (r << 16) | (g << 8) | b;
+
+  return color;
 }
 
 void setPixelColor(byte pixel, uint32_t color) {
@@ -54,46 +70,45 @@ void setLeds() {
   uint32_t color;
   // Scene 1
   color = 0;
-  setPixelColor(0, color);
   if (Huette::bar_controller_buttons::VI1_BTN_S1.isPressed())
     color = 0x00FFFFFF;
+  setPixelColor(0, color);
   setPixelColor(1, color);
 
   // Scene 2
   color = 0;
-  setPixelColor(2, color);
   if (Huette::bar_controller_buttons::VI2_BTN_S2.isPressed())
     color = 0x00FFFFFF;
+  setPixelColor(2, color);
   setPixelColor(3, color);
 
   // Kronleuchter
-  color = getLEDcolor(Huette::K1_KL1_A.getState());
+  // color = getLEDcolor(Huette::K1_KL1_A.getState());
+  color = getLEDcolor(Huette::K1_KL1_A.getState(),
+                      Huette::bar_controller_buttons::VI3_BTN_KL.isPressed());
   setPixelColor(4, color);
-  color = getLEDcolor(Huette::K2_KL1_B.getState());
-  if (Huette::bar_controller_buttons::VI3_BTN_KL.isPressed())
-    color = 0x00FFFFFF;
+  color = getLEDcolor(Huette::K2_KL1_B.getState(),
+                      Huette::bar_controller_buttons::VI3_BTN_KL.isPressed());
   setPixelColor(5, color);
 
   // Balken
-  color = getLEDcolor(Huette::L1.getValue());
+  color = getLEDcolor(Huette::L1.getValue(),
+                      Huette::bar_controller_buttons::VI4_BTN_BLK.isPressed());
   setPixelColor(6, color);
-  color = getLEDcolor(Huette::L2.getValue());
-  if (Huette::bar_controller_buttons::VI4_BTN_BLK.isPressed())
-    color = 0x00FFFFFF;
+  color = getLEDcolor(Huette::L2.getValue(),
+                      Huette::bar_controller_buttons::VI4_BTN_BLK.isPressed());
   setPixelColor(7, color);
 
   // Bar
-  color = getLEDcolor(Huette::L3.getValue());
+  color = getLEDcolor(Huette::L3.getValue(),
+                      Huette::bar_controller_buttons::VI5_BTN_BAR.isPressed());
   setPixelColor(8, color);
-  if (Huette::bar_controller_buttons::VI5_BTN_BAR.isPressed())
-    color = 0x00FFFFFF;
   setPixelColor(9, color);
 
   // DMX
-  color = getLEDcolor(Huette::DMX::DMX_Active);
+  color = getLEDcolor(Huette::DMX::DMX_Active,
+                      Huette::bar_controller_buttons::VI6_BTN_DMX.isPressed());
   setPixelColor(10, color);
-  if (Huette::bar_controller_buttons::VI6_BTN_DMX.isPressed())
-    color = 0x00FFFFFF;
   setPixelColor(11, color);
 }
 

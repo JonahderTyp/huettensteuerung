@@ -7,6 +7,7 @@
 
 #include "aussenbel.h"
 #include "balken.h"
+#include "bar.h"
 #include "bar_panel.h"
 #include "dmx.h"
 #include "kronleuchter.h"
@@ -68,4 +69,5 @@ void loop() {
   bar_controller::loop();
   balken::loop();
   aussenbel::loop();
+  bar::loop();
 }
