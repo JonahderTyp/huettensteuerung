@@ -14,6 +14,7 @@
 #include "offtimer.h"
 
 namespace Huette {
+// Relays
 DigitalOut K1_KL1_A(53, true);
 DigitalOut K2_KL1_B(52, true);
 DigitalOut K3_AB1(51, true);
@@ -23,6 +24,7 @@ DigitalOut K6(48, true);
 DigitalOut K7(47, true);
 DigitalOut K8_Power(46, true);
 
+// Dimmers
 AnalogOut L1(4, false, 255, 255);
 AnalogOut L2(5, false, 255, 255);
 AnalogOut L3(2, false, 0, 255);
@@ -53,6 +55,10 @@ void handlers() {
 
 };  // namespace Huette
 
+// RUN LED
+DigitalOut DO_D13(13);
+Ton run_led_timer(500);
+
 void setup() {
   delay(1000);
   Serial.begin(115200);
@@ -70,4 +76,11 @@ void loop() {
   balken::loop();
   aussenbel::loop();
   bar::loop();
+
+  // Run LED blink
+  run_led_timer.setIn(true);
+  if (run_led_timer.getQ()) {
+    run_led_timer.setIn(false);
+    DO_D13.toggle();
+  }
 }
